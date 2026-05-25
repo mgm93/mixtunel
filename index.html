@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mixtunel — Remix the Underground</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #050507;
+      --surface:  #0d0d14;
+      --accent:   #ff2d55;
+      --accent2:  #0ff;
+      --accent3:  #ff9f0a;
+      --text:     #f0eef5;
+      --muted:    #5a5870;
+      --card:     #121220;
+      --border:   #1e1e30;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: .5;
+    }
+
+    /* ── SCANLINES ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.07) 2px, rgba(0,0,0,.07) 4px);
+      pointer-events: none; z-index: 9998;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(5,5,7,.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: .15em;
+      color: var(--text);
+      text-decoration: none;
+      position: relative;
+    }
+    .logo span { color: var(--accent); }
+    .logo::after {
+      content: 'BETA';
+      position: absolute; top: -4px; right: -42px;
+      font-family: 'Space Mono', monospace;
+      font-size: .45rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 5px;
+      letter-spacing: .1em;
+      border-radius: 2px;
+    }
+
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: .7rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--accent2); }
+
+    .nav-cta {
+      font-family: 'Space Mono', monospace;
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: .6rem 1.4rem;
+      cursor: pointer;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+      transition: background .2s, transform .1s;
+    }
+    .nav-cta:hover { background: #ff0040; transform: scale(1.04); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+    }
+
+    /* animated tunel rings */
+    .tunel {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,45,85,.18);
+      animation: pulse-ring 4s linear infinite;
+    }
+    .ring:nth-child(1) { width: 200px; height: 200px; animation-delay: 0s; }
+    .ring:nth-child(2) { width: 400px; height: 400px; animation-delay: .5s; border-color: rgba(0,255,255,.1); }
+    .ring:nth-child(3) { width: 620px; height: 620px; animation-delay: 1s; }
+    .ring:nth-child(4) { width: 860px; height: 860px; animation-delay: 1.5s; border-color: rgba(0,255,255,.06); }
+    .ring:nth-child(5) { width: 1100px; height: 1100px; animation-delay: 2s; }
+    .ring:nth-child(6) { width: 1380px; height: 1380px; animation-delay: 2.5s; border-color: rgba(0,255,255,.04); }
+
+    @keyframes pulse-ring {
+      0%   { transform: scale(.85); opacity: 0; }
+      40%  { opacity: 1; }
+      100% { transform: scale(1.1); opacity: 0; }
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      animation: fadeUp .8s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 14vw, 13rem);
+      line-height: .92;
+      letter-spacing: .03em;
+      color: var(--text);
+      animation: fadeUp .9s .1s ease both;
+      position: relative;
+    }
+    .hero-title .glitch {
+      position: relative;
+      color: var(--accent);
+    }
+    .hero-title .glitch::before,
+    .hero-title .glitch::after {
+      content: attr(data-text);
+      position: absolute; top: 0; left: 0;
+      color: var(--accent);
+    }
+    .hero-title .glitch::before {
+      clip: rect(0,900px,20px,0);
+      animation: glitch1 2.5s infinite linear alternate-reverse;
+      color: var(--accent2);
+      left: 2px;
+    }
+    .hero-title .glitch::after {
+      clip: rect(0,900px,60px,0);
+      animation: glitch2 2s .5s infinite linear alternate-reverse;
+      left: -2px;
+    }
+    @keyframes glitch1 {
+      0%   { clip: rect(12px,9999px,42px,0); transform: skew(.4deg); }
+      20%  { clip: rect(80px,9999px,90px,0); }
+      40%  { clip: rect(5px,9999px,18px,0); transform: skew(0); }
+      60%  { clip: rect(60px,9999px,75px,0); transform: skew(-.3deg); }
+      80%  { clip: rect(30px,9999px,50px,0); }
+      100% { clip: rect(2px,9999px,10px,0); transform: skew(.2deg); }
+    }
+    @keyframes glitch2 {
+      0%   { clip: rect(50px,9999px,70px,0); transform: skew(-.5deg); }
+      25%  { clip: rect(10px,9999px,25px,0); }
+      50%  { clip: rect(88px,9999px,100px,0); transform: skew(.4deg); }
+      75%  { clip: rect(35px,9999px,55px,0); }
+      100% { clip: rect(20px,9999px,40px,0); transform: skew(-.2deg); }
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 2rem auto 0;
+      line-height: 1.7;
+      font-weight: 300;
+      animation: fadeUp 1s .2s ease both;
+    }
+
+    .hero-actions {
+      display: flex; gap: 1rem; margin-top: 2.8rem;
+      animation: fadeUp 1s .3s ease both;
+      flex-wrap: wrap; justify-content: center;
+    }
+
+    .btn-primary {
+      font-family: 'Space Mono', monospace;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: .9rem 2.2rem;
+      cursor: pointer;
+      clip-path: polygon(8px 0%,100% 0%,calc(100%-8px) 100%,0% 100%);
+      transition: all .2s;
+    }
+    .btn-primary:hover { background: #ff0040; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,45,85,.4); }
+
+    .btn-ghost {
+      font-family: 'Space Mono', monospace;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--accent2);
+      border: 1px solid var(--accent2);
+      padding: .9rem 2.2rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-ghost:hover { background: rgba(0,255,255,.08); transform: translateY(-2px); }
+
+    .scroll-hint {
+      position: absolute; bottom: 2.5rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .2em;
+      color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      animation: fadeUp 1s .6s ease both;
+    }
+    .scroll-hint::after {
+      content: '';
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+      animation: line-fall 1.5s ease-in-out infinite;
+    }
+    @keyframes line-fall {
+      0%,100% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(28px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    /* ── TICKER ── */
+    .ticker-wrap {
+      overflow: hidden;
+      background: var(--accent);
+      padding: .55rem 0;
+      border-top: 1px solid rgba(255,255,255,.1);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .ticker {
+      display: flex; gap: 3rem;
+      animation: ticker 22s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker span {
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .ticker-dot { color: rgba(255,255,255,.5); }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SECTION COMMONS ── */
+    section { padding: 6rem 3rem; }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      line-height: 1;
+      letter-spacing: .04em;
+    }
+
+    /* ── WAVEFORM PLAYER ── */
+    .player-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .player-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    }
+    .player-info .section-title { margin-bottom: 1.2rem; }
+    .player-info p { color: var(--muted); line-height: 1.7; font-weight: 300; max-width: 420px; }
+
+    .player-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .player-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,45,85,.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .now-playing-label {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .25em;
+      color: var(--accent);
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: .5rem;
+      margin-bottom: 1.2rem;
+    }
+    .live-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.2;} }
+
+    .track-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: .05em;
+      margin-bottom: .2rem;
+    }
+    .track-artist {
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+      margin-bottom: 1.8rem;
+    }
+
+    /* Waveform canvas */
+    #waveform {
+      width: 100%; height: 60px;
+      cursor: pointer;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+
+    .progress-bar-wrap {
+      width: 100%; height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-bottom: .8rem;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--accent), var(--accent3));
+      border-radius: 2px;
+      transition: width .1s linear;
+      position: relative;
+    }
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute; right: -4px; top: 50%;
+      transform: translateY(-50%);
+      width: 8px; height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255,45,85,.8);
+    }
+
+    .time-row {
+      display: flex; justify-content: space-between;
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .controls {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .ctrl-btn {
+      background: none; border: none;
+      color: var(--muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: color .2s, transform .15s;
+      padding: .3rem;
+    }
+    .ctrl-btn:hover { color: var(--text); transform: scale(1.15); }
+    .ctrl-btn.active { color: var(--accent2); }
+
+    .play-btn {
+      width: 48px; height: 48px;
+      background: var(--accent);
+      border: none;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: 0 4px 20px rgba(255,45,85,.4);
+    }
+    .play-btn:hover { background: #ff0040; transform: scale(1.1); box-shadow: 0 6px 28px rgba(255,45,85,.6); }
+    .play-btn svg { fill: #fff; width: 18px; height: 18px; }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      flex: 1; height: 2px;
+      background: var(--border);
+      outline: none;
+      border-radius: 2px;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px;
+      background: var(--text);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* ── TRENDING TRACKS ── */
+    .tracks-section { max-width: 1100px; margin: 0 auto; }
+    .tracks-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 3rem;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .view-all {
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .15em;
+      color: var(--accent2);
+      text-decoration: none;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--accent2);
+      padding-bottom: 2px;
+    }
+
+    .tracks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .track-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      position: relative;
+    }
+    .track-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255,45,85,.4);
+      box-shadow: 0 12px 40px rgba(0,0,0,.6);
+    }
+
+    .track-art {
+      width: 100%; aspect-ratio: 1;
+      position: relative; overflow: hidden;
+    }
+    .track-art-bg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+      transition: transform .3s;
+    }
+    .track-card:hover .track-art-bg { transform: scale(1.1); }
+
+    .track-art-overlay {
+      position: absolute; inset: 0;
+      background: rgba(5,5,7,.5);
+      opacity: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .25s;
+    }
+    .track-card:hover .track-art-overlay { opacity: 1; }
+    .track-play-icon { font-size: 2.5rem; }
+
+    .track-meta { padding: 1rem 1.2rem 1.2rem; }
+    .track-meta-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: .04em;
+      margin-bottom: .2rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .track-meta-artist {
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      margin-bottom: .9rem;
+    }
+    .track-stats {
+      display: flex; gap: 1.2rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      color: var(--muted);
+    }
+    .track-stat { display: flex; align-items: center; gap: .35rem; }
+    .track-stat-icon { font-size: .85rem; }
+    .remix-badge {
+      position: absolute; top: .8rem; left: .8rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .5rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .25rem .6rem;
+      border-radius: 2px;
+    }
+    .badge-official { background: var(--accent); color: #fff; }
+    .badge-community { background: rgba(0,255,255,.15); color: var(--accent2); border: 1px solid rgba(0,255,255,.3); }
+    .badge-collab { background: rgba(255,159,10,.15); color: var(--accent3); border: 1px solid rgba(255,159,10,.3); }
+
+    /* ── REMIX STUDIO ── */
+    .studio-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .studio-inner { max-width: 1100px; margin: 0 auto; }
+    .studio-inner .section-title { margin-bottom: 1rem; }
+    .studio-inner > p { color: var(--muted); max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+
+    /* Kotlin-powered EQ visual */
+    .eq-bar-container {
+      display: flex; gap: 5px; align-items: flex-end;
+      height: 120px; margin-bottom: 3rem;
+    }
+    .eq-bar {
+      flex: 1;
+      background: linear-gradient(to top, var(--accent), var(--accent3));
+      border-radius: 2px 2px 0 0;
+      transition: height .12s ease;
+      opacity: .85;
+      min-height: 4px;
+    }
+
+    .studio-features {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    .studio-feature {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      border-radius: 4px;
+      transition: border-color .2s;
+    }
+    .studio-feature:hover { border-color: rgba(0,255,255,.3); }
+    .feature-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .feature-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: .06em;
+      margin-bottom: .5rem;
+    }
+    .feature-desc { font-size: .85rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── KOTLIN STATUS PANEL ── */
+    .kotlin-panel {
+      max-width: 1100px; margin: 0 auto;
+    }
+    .kotlin-panel .section-title { margin-bottom: .5rem; }
+    .kotlin-panel > .section-label { color: var(--accent3); }
+    .kotlin-panel > p { color: var(--muted); margin-bottom: 2.5rem; max-width: 560px; line-height: 1.7; }
+
+    .kotlin-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    }
+
+    .code-block {
+      background: #0a0a10;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .7rem 1rem;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .code-filename {
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      color: var(--muted);
+      margin-left: .3rem;
+    }
+    .code-body {
+      padding: 1.2rem 1.4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: .68rem;
+      line-height: 1.9;
+      overflow-x: auto;
+    }
+    .kw  { color: #ff79c6; }
+    .fn  { color: #50fa7b; }
+    .str { color: #f1fa8c; }
+    .cm  { color: #6272a4; }
+    .tp  { color: var(--accent2); }
+    .num { color: var(--accent3); }
+
+    .runtime-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .runtime-header {
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .12em;
+      color: var(--muted);
+      padding: .7rem 1rem;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between;
+    }
+    .runtime-status { color: #50fa7b; }
+    .runtime-body { padding: 1.2rem 1.4rem; }
+
+    .kotlin-metric {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .7rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .kotlin-metric:last-child { border-bottom: none; }
+    .metric-label { font-family: 'Space Mono', monospace; font-size: .62rem; color: var(--muted); letter-spacing: .08em; }
+    .metric-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: .06em; }
+    .metric-bar-wrap { width: 100px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .metric-bar { height: 100%; border-radius: 2px; }
+
+    /* ── COMMUNITY ── */
+    .community-section { max-width: 1100px; margin: 0 auto; }
+    .community-section .section-title { margin-bottom: 3rem; }
+
+    .community-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    }
+    .community-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .community-card:hover { border-color: rgba(255,45,85,.3); transform: translateY(-3px); }
+
+    .community-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      border: 2px solid var(--border);
+    }
+    .community-name {
+      font-family: 'Space Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .08em;
+      margin-bottom: .2rem;
+    }
+    .community-handle {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .community-text {
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .community-text strong { color: var(--text); font-weight: 500; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 4rem 3rem 2rem;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem;
+    }
+    .footer-brand .logo { font-size: 1.8rem; }
+    .footer-brand p { color: var(--muted); font-size: .85rem; line-height: 1.7; margin-top: 1rem; max-width: 280px; }
+
+    .footer-col-title {
+      font-family: 'Space Mono', monospace;
+      font-size: .6rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
+    .footer-links a { font-size: .85rem; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--accent2); }
+
+    .footer-bottom {
+      max-width: 1100px; margin: 3rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-bottom p { font-family: 'Space Mono', monospace; font-size: .58rem; color: var(--muted); letter-spacing: .1em; }
+    .footer-bottom .kotlin-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .1em;
+      color: var(--accent3);
+      border: 1px solid rgba(255,159,10,.3);
+      padding: .3rem .8rem;
+      border-radius: 2px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 1.5rem; }
+      .player-inner { grid-template-columns: 1fr; gap: 2rem; }
+      .studio-features { grid-template-columns: 1fr; }
+      .kotlin-grid { grid-template-columns: 1fr; }
+      .community-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">Mix<span>tunel</span></a>
+  <ul class="nav-links">
+    <li><a href="#trending">Trending</a></li>
+    <li><a href="#studio">Studio</a></li>
+    <li><a href="#community">Community</a></li>
+    <li><a href="#kotlin">Tech</a></li>
+  </ul>
+  <button class="nav-cta" onclick="showToast('Upload your remix!')">Upload Remix</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="tunel">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  </div>
+  <p class="hero-eyebrow">🎛 Remix Culture Lives Here</p>
+  <h1 class="hero-title">
+    <span class="glitch" data-text="MIX">MIX</span><br/>tunel
+  </h1>
+  <p class="hero-sub">Upload, discover, and remix tracks with a community of underground producers. Powered by Kotlin.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="showToast('Welcome to Mixtunel!')">Start Remixing</button>
+    <button class="btn-ghost" onclick="scrollToTrending()">Browse Tracks ↓</button>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <!-- filled by Kotlin-style JS -->
+  </div>
+</div>
+
+<!-- PLAYER -->
+<section class="player-section">
+  <div class="player-inner">
+    <div class="player-info">
+      <p class="section-label">Now Playing</p>
+      <h2 class="section-title">Immersive<br/>Playback</h2>
+      <p>Mixtunel's waveform engine — rendered in real-time — puts you inside every remix. Seek, loop, and feel the frequencies.</p>
+    </div>
+    <div class="player-card">
+      <div class="now-playing-label"><span class="live-dot"></span> Now Playing</div>
+      <div class="track-title" id="pt-title">NEON DRIFT</div>
+      <div class="track-artist" id="pt-artist">KΛIROS — Remix by SYNTH_WOLF</div>
+      <canvas id="waveform"></canvas>
+      <div class="progress-bar-wrap" id="progress-wrap">
+        <div class="progress-bar-fill" id="progress-fill" style="width:34%"></div>
+      </div>
+      <div class="time-row">
+        <span id="current-time">1:02</span>
+        <span id="total-time">3:04</span>
+      </div>
+      <div class="controls">
+        <button class="ctrl-btn" id="btn-shuffle" onclick="toggleShuffle()" title="Shuffle">⇄</button>
+        <button class="ctrl-btn" onclick="prevTrack()" title="Prev">⏮</button>
+        <button class="play-btn" id="play-btn" onclick="togglePlay()">
+          <svg id="play-icon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+        </button>
+        <button class="ctrl-btn" onclick="nextTrack()" title="Next">⏭</button>
+        <button class="ctrl-btn active" id="btn-repeat" onclick="toggleRepeat()" title="Repeat">↻</button>
+        <input type="range" class="volume-slider" id="vol-slider" min="0" max="100" value="72" oninput="updateVolume(this.value)" title="Volume"/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRENDING -->
+<section id="trending">
+  <div class="tracks-section">
+    <div class="tracks-header">
+      <div>
+        <p class="section-label">Hot Right Now</p>
+        <h2 class="section-title">Trending<br/>Remixes</h2>
+      </div>
+      <a href="#" class="view-all">View All →</a>
+    </div>
+    <div class="tracks-grid" id="tracks-grid">
+      <!-- Populated by Kotlin-style JS -->
+    </div>
+  </div>
+</section>
+
+<!-- REMIX STUDIO -->
+<section class="studio-section" id="studio">
+  <div class="studio-inner">
+    <p class="section-label">Create & Collaborate</p>
+    <h2 class="section-title">Remix Studio</h2>
+    <p>A browser-based creative suite with real-time EQ, pitch shifting, and stem separation. Built on a Kotlin DSP engine compiled to WebAssembly.</p>
+    <div class="eq-bar-container" id="eq-bars"></div>
+    <div class="studio-features">
+      <div class="studio-feature">
+        <div class="feature-icon">🎚</div>
+        <div class="feature-title">Multi-Band EQ</div>
+        <div class="feature-desc">32-band parametric equalizer with real-time preview. Built with Kotlin's DSP pipeline for zero-latency processing.</div>
+      </div>
+      <div class="studio-feature">
+        <div class="feature-icon">🎛</div>
+        <div class="feature-title">Stem Separation</div>
+        <div class="feature-desc">AI-powered vocal, drums, bass, and melody isolation. Remix any individual stem directly in the browser.</div>
+      </div>
+      <div class="studio-feature">
+        <div class="feature-icon">🔊</div>
+        <div class="feature-title">Live Collab</div>
+        <div class="feature-desc">Real-time session sharing via WebSockets. Invite other producers into your session for instant collaboration.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KOTLIN TECH SECTION -->
+<section id="kotlin">
+  <div class="kotlin-panel">
+    <p class="section-label">⚙ Kotlin-Powered</p>
+    <h2 class="section-title">Built on<br/>Kotlin</h2>
+    <p>Mixtunel's core — from the audio engine to the data models — is written in Kotlin. The backend runs on Ktor, the frontend logic compiles via Kotlin/JS, and the DSP engine targets Kotlin/Native → WASM.</p>
+    <div class="kotlin-grid">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dot" style="background:#ff5f56"></div>
+          <div class="code-dot" style="background:#ffbd2e"></div>
+          <div class="code-dot" style="background:#27c93f"></div>
+          <span class="code-filename">RemixTrack.kt</span>
+        </div>
+        <div class="code-body" id="code-display"></div>
+      </div>
+      <div class="runtime-panel">
+        <div class="runtime-header">
+          <span>KOTLIN RUNTIME METRICS</span>
+          <span class="runtime-status">● ACTIVE</span>
+        </div>
+        <div class="runtime-body" id="metrics-body"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section id="community">
+  <div class="community-section">
+    <p class="section-label">The Underground</p>
+    <h2 class="section-title">Community<br/>Voices</h2>
+    <div class="community-grid" id="community-grid"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="logo" href="#">Mix<span>tunel</span></a>
+      <p>The remix platform for underground producers. Upload, discover, and collaborate on the tracks that matter.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Platform</div>
+      <ul class="footer-links">
+        <li><a href="#">Trending</a></li>
+        <li><a href="#">Studio</a></li>
+        <li><a href="#">Upload</a></li>
+        <li><a href="#">Charts</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Community</div>
+      <ul class="footer-links">
+        <li><a href="#">Producers</a></li>
+        <li><a href="#">Labels</a></li>
+        <li><a href="#">Events</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li><a href="#">About</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 MIXtunel — ALL RIGHTS RESERVED</p>
+    <span class="kotlin-badge">POWERED BY KOTLIN</span>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div id="toast" style="
+  position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px);
+  background:var(--accent); color:#fff;
+  font-family:'Space Mono',monospace; font-size:.7rem; letter-spacing:.1em;
+  padding:.8rem 2rem; border-radius:2px;
+  transition: transform .35s cubic-bezier(.175,.885,.32,1.275), opacity .35s;
+  opacity:0; z-index:10000;
+  clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+"></div>
+
+<script>
+/* =============================================
+   Mixtunel — Kotlin-style JavaScript Engine
+   (Emulates Kotlin data classes, sealed classes,
+    companion objects, extension functions, etc.)
+   ============================================= */
+
+// ── Kotlin-style data class emulation ──────────
+function dataClass(fields) {
+  return class {
+    constructor(props) { Object.assign(this, props); }
+    copy(overrides) { return new this.constructor({ ...this, ...overrides }); }
+    toString() { return JSON.stringify(this); }
+  };
+}
+
+const RemixTrack = dataClass(['id','title','artist','remixer','genre','duration','plays','likes','badge','emoji','color']);
+const Artist     = dataClass(['handle','displayName','avatar','bio']);
+const EqBand     = dataClass(['freq','gain']);
+
+// ── Companion Object pattern ────────────────────
+RemixTrack.of = (props) => new RemixTrack(props);
+
+// ── Sealed class for PlayerState ───────────────
+const PlayerState = Object.freeze({ PLAYING: 'PLAYING', PAUSED: 'PAUSED', LOADING: 'LOADING' });
+
+// ── Extension-style functions ───────────────────
+const formatDuration = (secs) => {
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return `${m}:${s.toString().padStart(2,'0')}`;
+};
+const formatPlays = (n) => n >= 1_000_000 ? `${(n/1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n/1_000).toFixed(1)}K` : n;
+
+// ── Data ────────────────────────────────────────
+const TRACKS = [
+  RemixTrack.of({ id:1, title:'NEON DRIFT',      artist:'KΛIROS',    remixer:'SYNTH_WOLF', genre:'Synthwave', duration:184, plays:2_840_000, likes:94_200, badge:'official',   emoji:'🌊', color:'#1a0a2e' }),
+  RemixTrack.of({ id:2, title:'GRAVITY FADE',    artist:'AURORA',    remixer:'DJ_ZERO',    genre:'Future Bass',duration:212, plays:1_120_000, likes:58_900, badge:'community',  emoji:'🪐', color:'#0a1a2e' }),
+  RemixTrack.of({ id:3, title:'VOLT SIGNAL',     artist:'OXALIS',    remixer:'FREQ_X',     genre:'Techno',    duration:360, plays:3_200_000, likes:121_000, badge:'official',  emoji:'⚡', color:'#1a1a0a' }),
+  RemixTrack.of({ id:4, title:'CARBON ECHO',     artist:'MNML_K',    remixer:'WAVEFORM9',  genre:'Minimal',   duration:294, plays:880_000,  likes:41_300, badge:'collab',     emoji:'🌫', color:'#0d0d0d' }),
+  RemixTrack.of({ id:5, title:'PRISM BREAK',     artist:'VELOUR',    remixer:'NXXT',       genre:'Drum & Bass',duration:178, plays:5_670_000, likes:213_000, badge:'official', emoji:'🔮', color:'#1a0018' }),
+  RemixTrack.of({ id:6, title:'HOLLOW CIRCUIT',  artist:'STATIC_M',  remixer:'DUSK_AI',    genre:'Ambient',   duration:410, plays:450_000,  likes:22_100, badge:'community',  emoji:'🔵', color:'#001a1a' }),
+];
+
+const REVIEWS = [
+  { name:'SYNTH_WOLF',  handle:'@synth_wolf',  avatar:'🐺', text:`<strong>Mixtunel</strong> is the only place where my remixes actually get heard. The Kotlin-backed streaming is buttery smooth.` },
+  { name:'FREQ_X',      handle:'@freq_x',      avatar:'📡', text:`The stem separation blew my mind. I remixed a track I'd never have touched before — and it charted in 3 days.` },
+  { name:'WAVEFORM9',   handle:'@waveform9',   avatar:'🌊', text:`Collab sessions in real time? That's next level. Worked with a producer in Seoul while I was in Stockholm. Zero lag.` },
+];
+
+const TICKER_ITEMS = ['Neon Drift — 2.8M plays', 'Volt Signal — 3.2M plays', 'Prism Break — 5.6M plays', 'New: Collab Sessions', 'Upload your remix now', 'Kotlin-powered DSP engine live', 'Carbon Echo remix pack available'];
+
+const KOTLIN_CODE = [
+  `<span class="cm">// Mixtunel core data model</span>`,
+  `<span class="kw">data class</span> <span class="tp">RemixTrack</span>(`,
+  `  <span class="kw">val</span> id: <span class="tp">Int</span>,`,
+  `  <span class="kw">val</span> title: <span class="tp">String</span>,`,
+  `  <span class="kw">val</span> artist: <span class="tp">String</span>,`,
+  `  <span class="kw">val</span> genre: <span class="tp">Genre</span>,`,
+  `  <span class="kw">val</span> plays: <span class="tp">Long</span> = <span class="num">0L</span>`,
+  `)`,
+  ``,
+  `<span class="kw">sealed class</span> <span class="tp">PlayerState</span> {`,
+  `  <span class="kw">object</span> <span class="tp">Playing</span> : <span class="tp">PlayerState</span>()`,
+  `  <span class="kw">object</span> <span class="tp">Paused</span>  : <span class="tp">PlayerState</span>()`,
+  `  <span class="kw">data class</span> <span class="tp">Error</span>(<span class="kw">val</span> msg: <span class="tp">String</span>) : <span class="tp">PlayerState</span>()`,
+  `}`,
+  ``,
+  `<span class="cm">// Extension function</span>`,
+  `<span class="kw">fun</span> <span class="tp">RemixTrack</span>.<span class="fn">formattedPlays</span>() =`,
+  `  <span class="kw">when</span> {`,
+  `    plays >= <span class="num">1_000_000</span> -> <span class="str">"${'$'}{plays/1_000_000}M"</span>`,
+  `    plays >= <span class="num">1_000</span>     -> <span class="str">"${'$'}{plays/1_000}K"</span>`,
+  `    <span class="kw">else</span>           -> plays.toString()`,
+  `  }`,
+].join('\n');
+
+const METRICS = [
+  { label:'TRACKS STREAMED',   value:'12.4M', bar:82,  color:'var(--accent)' },
+  { label:'ACTIVE REMIXERS',   value:'48.2K', bar:64,  color:'var(--accent2)' },
+  { label:'COLLAB SESSIONS',   value:'3.1K',  bar:42,  color:'var(--accent3)' },
+  { label:'DSP LATENCY (MS)',   value:'4.2',   bar:14,  color:'#50fa7b' },
+  { label:'WASM BUNDLE (KB)',   value:'186',   bar:30,  color:'#ff79c6' },
+];
+
+// ── Ticker ──────────────────────────────────────
+const tickerEl = document.getElementById('ticker');
+const items = [...TICKER_ITEMS, ...TICKER_ITEMS].map(t =>
+  `<span>${t}</span><span class="ticker-dot">✦</span>`).join('');
+tickerEl.innerHTML = items;
+
+// ── Tracks Grid ─────────────────────────────────
+const grid = document.getElementById('tracks-grid');
+grid.innerHTML = TRACKS.map(t => `
+  <div class="track-card" onclick="loadTrack(${t.id})">
+    <span class="remix-badge badge-${t.badge}">${t.badge}</span>
+    <div class="track-art" style="background:${t.color}">
+      <div class="track-art-bg">${t.emoji}</div>
+      <div class="track-art-overlay"><span class="track-play-icon">▶</span></div>
+    </div>
+    <div class="track-meta">
+      <div class="track-meta-title">${t.title}</div>
+      <div class="track-meta-artist">${t.artist} · remix by ${t.remixer}</div>
+      <div class="track-stats">
+        <span class="track-stat"><span class="track-stat-icon">▶</span>${formatPlays(t.plays)}</span>
+        <span class="track-stat"><span class="track-stat-icon">♥</span>${formatPlays(t.likes)}</span>
+        <span class="track-stat"><span class="track-stat-icon">⏱</span>${formatDuration(t.duration)}</span>
+      </div>
+    </div>
+  </div>
+`).join('');
+
+// ── EQ Bars ─────────────────────────────────────
+const eqContainer = document.getElementById('eq-bars');
+const NUM_BANDS = 40;
+for (let i = 0; i < NUM_BANDS; i++) {
+  const bar = document.createElement('div');
+  bar.className = 'eq-bar';
+  bar.style.height = `${20 + Math.random() * 60}%`;
+  eqContainer.appendChild(bar);
+}
+setInterval(() => {
+  [...eqContainer.children].forEach(bar => {
+    const h = 10 + Math.random() * 85;
+    bar.style.height = h + '%';
+  });
+}, 120);
+
+// ── Waveform Canvas ─────────────────────────────
+const canvas = document.getElementById('waveform');
+const ctx = canvas.getContext('2d');
+let waveData = [];
+function generateWave(n) {
+  const arr = [];
+  for (let i = 0; i < n; i++) arr.push(0.1 + Math.random() * 0.9);
+  return arr;
+}
+function drawWaveform(progress) {
+  const W = canvas.offsetWidth, H = 60;
+  canvas.width = W; canvas.height = H;
+  waveData = waveData.length ? waveData : generateWave(W / 3 | 0);
+  const bw = W / waveData.length;
+  waveData.forEach((v, i) => {
+    const x = i * bw;
+    const barH = v * (H * .9);
+    const played = (i / waveData.length) < progress;
+    ctx.fillStyle = played ? '#ff2d55' : '#1e1e30';
+    ctx.fillRect(x, (H - barH)/2, bw - 1, barH);
+  });
+}
+drawWaveform(0.34);
+
+document.getElementById('progress-wrap').addEventListener('click', function(e) {
+  const rect = this.getBoundingClientRect();
+  const p = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  document.getElementById('progress-fill').style.width = (p*100)+'%';
+  const track = TRACKS[currentTrackIdx];
+  const elapsed = Math.floor(p * track.duration);
+  document.getElementById('current-time').textContent = formatDuration(elapsed);
+  drawWaveform(p);
+});
+
+// ── Player State ────────────────────────────────
+let playerState = PlayerState.PAUSED;
+let currentTrackIdx = 0;
+let shuffleOn = false, repeatOn = true;
+
+function updatePlayerUI(track) {
+  document.getElementById('pt-title').textContent = track.title;
+  document.getElementById('pt-artist').textContent = `${track.artist} — Remix by ${track.remixer}`;
+  document.getElementById('total-time').textContent = formatDuration(track.duration);
+  waveData = [];
+  drawWaveform(0);
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('current-time').textContent = '0:00';
+}
+
+function togglePlay() {
+  if (playerState === PlayerState.PLAYING) {
+    playerState = PlayerState.PAUSED;
+    document.getElementById('play-icon').innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+    showToast('Paused');
+  } else {
+    playerState = PlayerState.PLAYING;
+    document.getElementById('play-icon').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    showToast(`Now Playing: ${TRACKS[currentTrackIdx].title}`);
+    simulateProgress();
+  }
+}
+
+let progressTimer = null;
+function simulateProgress() {
+  clearInterval(progressTimer);
+  if (playerState !== PlayerState.PLAYING) return;
+  const track = TRACKS[currentTrackIdx];
+  const fillEl = document.getElementById('progress-fill');
+  const curEl = document.getElementById('current-time');
+  let progress = parseFloat(fillEl.style.width) / 100;
+  progressTimer = setInterval(() => {
+    if (playerState !== PlayerState.PLAYING) { clearInterval(progressTimer); return; }
+    progress = Math.min(1, progress + 1 / track.duration / 10);
+    fillEl.style.width = (progress * 100) + '%';
+    curEl.textContent = formatDuration(Math.floor(progress * track.duration));
+    drawWaveform(progress);
+    if (progress >= 1) { clearInterval(progressTimer); nextTrack(); }
+  }, 100);
+}
+
+function loadTrack(id) {
+  currentTrackIdx = TRACKS.findIndex(t => t.id === id);
+  updatePlayerUI(TRACKS[currentTrackIdx]);
+  playerState = PlayerState.PLAYING;
+  document.getElementById('play-icon').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  simulateProgress();
+  document.querySelector('.player-section').scrollIntoView({ behavior:'smooth' });
+  showToast(`Loading: ${TRACKS[currentTrackIdx].title}`);
+}
+
+function nextTrack() {
+  if (shuffleOn) currentTrackIdx = Math.floor(Math.random() * TRACKS.length);
+  else currentTrackIdx = (currentTrackIdx + 1) % TRACKS.length;
+  updatePlayerUI(TRACKS[currentTrackIdx]);
+  if (playerState === PlayerState.PLAYING) simulateProgress();
+}
+function prevTrack() {
+  currentTrackIdx = (currentTrackIdx - 1 + TRACKS.length) % TRACKS.length;
+  updatePlayerUI(TRACKS[currentTrackIdx]);
+  if (playerState === PlayerState.PLAYING) simulateProgress();
+}
+function toggleShuffle() {
+  shuffleOn = !shuffleOn;
+  document.getElementById('btn-shuffle').classList.toggle('active', shuffleOn);
+  showToast(shuffleOn ? 'Shuffle ON' : 'Shuffle OFF');
+}
+function toggleRepeat() {
+  repeatOn = !repeatOn;
+  document.getElementById('btn-repeat').classList.toggle('active', repeatOn);
+  showToast(repeatOn ? 'Repeat ON' : 'Repeat OFF');
+}
+function updateVolume(v) { /* would connect to Web Audio API */ }
+
+// ── Kotlin Code Display ─────────────────────────
+document.getElementById('code-display').innerHTML = KOTLIN_CODE;
+
+// ── Metrics ─────────────────────────────────────
+document.getElementById('metrics-body').innerHTML = METRICS.map(m => `
+  <div class="kotlin-metric">
+    <span class="metric-label">${m.label}</span>
+    <span class="metric-value" style="color:${m.color}">${m.value}</span>
+    <div class="metric-bar-wrap"><div class="metric-bar" style="width:${m.bar}%;background:${m.color}"></div></div>
+  </div>
+`).join('');
+
+// ── Community ───────────────────────────────────
+document.getElementById('community-grid').innerHTML = REVIEWS.map(r => `
+  <div class="community-card">
+    <div class="community-avatar">${r.avatar}</div>
+    <div class="community-name">${r.name}</div>
+    <div class="community-handle">${r.handle}</div>
+    <p class="community-text">${r.text}</p>
+  </div>
+`).join('');
+
+// ── Toast ───────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(80px)';
+  }, 2200);
+}
+
+// ── Scroll helper ───────────────────────────────
+function scrollToTrending() {
+  document.getElementById('trending').scrollIntoView({ behavior:'smooth' });
+}
+
+// ── Scroll-reveal ───────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.track-card, .studio-feature, .community-card, .code-block, .runtime-panel').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(30px)';
+  el.style.transition = 'opacity .5s ease, transform .5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
